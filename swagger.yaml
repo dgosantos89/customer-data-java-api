@@ -1,0 +1,299 @@
+openapi: 3.0.3
+info:
+  title: Open Customer Data Api
+  description: Open Customer Data Api
+  version: 1.2.0
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0'
+servers:
+  - url: 'localhost:8080/test-api'
+    description: Development server
+tags:
+  - name: Consents
+    description: Operation to create and get consents
+  - name: Accounts
+    description: Operation to get Account information
+paths:
+  '/consents/v1/consents':
+    post:
+      tags:
+        - Consents
+      summary: Create a consent
+      description: Create a consent
+      operationId: postConsent
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConsent'
+        description: Payload to create a consent.
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/OkConsent'
+        '403':
+          description: 403 response
+        '500':
+          description: 500 response
+  '/consents/v1/consents/{consentId}':
+    put:
+      tags:
+        - Consents
+      summary: Update a consent
+      description: Update a consent
+      operationId: putConsent
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/ConsentId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConsent'
+        description: Payload to update consent status
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/OkConsent'
+        '403':
+          description: 403 response
+        '404':
+          description: 404 response
+        '500':
+          description: 500 response
+    get:
+      tags:
+        - Consents
+      summary: Get consent
+      description: Get consent
+      operationId: getConsent
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/ConsentId'
+      responses:
+        '200':
+          $ref: '#/components/responses/OkConsent'
+        '403':
+          description: 403 response
+        '404':
+          description: 404 response
+        '500':
+          description: 500 response
+  '/accounts/v1/accounts':
+    get:
+      tags:
+        - Accounts
+      summary: List accounts
+      description: List accounts
+      operationId: listAccounts
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+      responses:
+        '200':
+          $ref: '#/components/responses/OkListAccounts'
+        '403':
+          description: 403 response
+        '500':
+          description: 500 response
+  '/accounts/v1/accounts/{accountId}':
+    get:
+      tags:
+        - Accounts
+      summary: Get accounts information
+      description: Get accounts information
+      operationId: getAccounts
+      parameters:
+        - $ref: '#/components/parameters/Authorization'
+        - $ref: '#/components/parameters/AccountId'
+      responses:
+        '200':
+          $ref: '#/components/responses/OkAccounts'
+        '403':
+          description: 403 response
+        '404':
+          description: 404 response
+        '500':
+          description: 500 response
+components:
+  parameters:
+    Authorization:
+      name: Authorization
+      in: header
+      description: | 
+        Cabeçalho HTTP padrão. Permite que as credenciais sejam fornecidas dependendo do tipo de recurso solicitado
+      required: true
+      schema:
+        type: string
+        pattern: '[\w\W\s]*'
+        maxLength: 2048
+    ConsentId:
+      name: consentId
+      in: path
+      description: Cabeçalho HTTP padrão. Permite que as credenciais sejam fornecidas dependendo do tipo de recurso solicitado
+      required: true
+      schema:
+        type: string
+        pattern: '[\w\W\s]*'
+        maxLength: 2048
+    AccountId:
+      name: accountId
+      in: path
+      description: Cabeçalho HTTP padrão. Permite que as credenciais sejam fornecidas dependendo do tipo de recurso solicitado
+      required: true
+      schema:
+        type: string
+        pattern: '[\w\W\s]*'
+        maxLength: 2048
+  schemas:
+    CreateConsent:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/CreateConsentData'
+    CreateConsentData:
+      type: object
+      description: Utilizado para informar para qual estado deve ir o pagamento. Atualmente o único valor possível é CANC.
+      required:
+        - permissions
+        - expirationDateTime
+      properties:
+        permissions:
+          type: string
+          enum:
+            - ACCOUNTS_READ
+            - CREDIT_CARD_READ
+          description: |
+            This is the permission code to associate the consent to call the customer api. 
+            possible values:
+            - ACCOUNTS_READ - To get account information
+            - CREDIT_CARD_READ - To get credit-card information
+        expirationDateTime:
+          maxLength: 20
+          type: string
+          description: Expiration date time of the consent
+          format: date-time
+    UpdateConsent:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/UpdateConsentData'
+    UpdateConsentData:
+      type: object
+      description: Utilizado para informar para qual estado deve ir o pagamento. Atualmente o único valor possível é CANC.
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - AWAITING_AUTHORISATION
+            - AUTHORISED
+            - REJECTED
+          description: |
+            O preenchimento desse campo para retorno, deve ocorrer pela detentora de contas a partir do status em que o pagamento estiver no momento da solicitação do cancelamento (ex. Status de pagamento = PDNG, campo deve ser preenchido com enum CANCELADO_PENDENCIA)
+            Valores possíveis:
+            - AWAITING_AUTHORISATION - Pagamento cancelado enquanto estava na situação PDNG
+            - AUTHORISED - Pagamento cancelado enquanto estava na situação SCHD
+            - REJECTED - Pagamento cancelado enquanto estava na situação SCHD
+
+    ResponseConsent:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ResponseConsentData'
+    ResponseConsentData:
+      type: object
+      description: Response contain all the consent information
+      properties:
+        consentId:
+          maxLength: 200
+          type: string
+          description: Consent ID generated by the API
+          example: urn:bank:xxxxxxxxxxxxx
+        clientId:
+          maxLength: 200
+          type: string
+          description: Client Id used to create the consent
+        permissions:
+          type: string
+          enum:
+            - ACCOUNTS_READ
+            - CREDIT_CARD_READ
+          description: |
+            This is the permission code to associate the consent to call the customer api. 
+            possible values:
+            - ACCOUNTS_READ - To get account information
+            - CREDIT_CARD_READ - To get credit-card information
+        expirationDateTime:
+          maxLength: 20
+          type: string
+          description: Expiration date time of the consent
+          format: date-time
+        creationDateTime:
+          maxLength: 20
+          type: string
+          description: Creation date time of the consent
+          format: date-time
+        statusUpdateDateTime:
+          maxLength: 20
+          type: string
+          description: Status update date time of the consent
+          format: date-time
+    ResponseAccount:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/ResponseAccountData'
+    ResponseListAccount:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseAccountData'
+    ResponseAccountData:
+      type: object
+      description: Utilizado para informar para qual estado deve ir o pagamento. Atualmente o único valor possível é CANC.
+      properties:
+        id:
+          type: string
+          description: Status update date time of the consent
+        bank:
+          type: string
+          description: Status update date time of the consent
+        accountNumber:
+          type: string
+          description: Status update date time of the consent
+        creationDateTime:
+          maxLength: 20
+          type: string
+          description: Expiration date time of the consent
+          format: date-time
+  responses:
+    OkConsent:
+      description: Response for consent
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseConsent'
+    OkListAccounts:
+      description: Response for list of accounts
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseListAccount'
+    OkAccounts:
+      description: Response for Accounts
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseAccount'

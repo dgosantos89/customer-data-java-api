@@ -1,0 +1,67 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "application"
+    id "io.micronaut.application" version "4.0.0"
+}
+
+group = "org.example"
+version = "1.0-SNAPSHOT"
+
+micronaut {
+    version "4.0.2"
+    runtime "lambda_java"
+    runtime "netty"
+    testRuntime "spock2"
+    processing {
+        incremental(true)
+        annotations("com.raidiam.trustframework.directory.*")
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    implementation('com.nimbusds:nimbus-jose-jwt:9.37.3')
+    implementation('io.micronaut.security:micronaut-security')
+    implementation('io.micronaut:micronaut-jackson-databind')
+    implementation('io.micronaut.rxjava2:micronaut-rxjava2')
+    implementation('io.micronaut.rxjava2:micronaut-rxjava2-http-client')
+    implementation("io.micronaut.sql:micronaut-hibernate-jpa")
+    implementation("io.micronaut.data:micronaut-data-tx-hibernate")
+    implementation("io.micronaut.sql:micronaut-jdbc-hikari")
+    runtimeOnly("com.h2database:h2")
+    runtimeOnly("org.yaml:snakeyaml")
+
+    implementation('jakarta.annotation:jakarta.annotation-api')
+
+    annotationProcessor("io.micronaut.data:micronaut-data-processor")
+    annotationProcessor("io.micronaut.data:micronaut-data-hibernate-jpa")
+    implementation('io.micronaut.data:micronaut-data-hibernate-jpa')
+    implementation('io.micronaut.sql:micronaut-hibernate-jpa')
+    annotationProcessor("io.micronaut.security:micronaut-security-annotations")
+    annotationProcessor("io.micronaut.validation:micronaut-validation-processor")
+    implementation("io.micronaut.validation:micronaut-validation")
+    implementation("org.apache.logging.log4j:log4j-core")
+    runtimeOnly('org.jlib:jlib-awslambda-logback:1.0.0')
+    implementation('net.logstash.logback:logstash-logback-encoder:7.4')
+    implementation("io.micronaut.flyway:micronaut-flyway")
+
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+shadowJar {
+    mergeServiceFiles()
+}
+
+application {
+    mainClass = "org.example.Application"
+}
