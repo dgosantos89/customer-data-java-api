@@ -43,10 +43,6 @@ public class testBase {
         return generateJwtToken("consents", null);
     }
 
-    protected static String generateInvalidToken() {
-        return "invalid.token.value";
-    }
-
     protected static String generateTokenWithoutPayload() {
         String header = "{\"alg\": \"none\", \"typ\": \"JWT\"}";
         return encodeBase64(header) + "..";
