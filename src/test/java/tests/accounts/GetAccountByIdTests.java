@@ -3,13 +3,13 @@ package tests.accounts;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import tests.testBase;
+import tests.TestBase;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.*;
 
-public class GetAccountByIdTests extends testBase {
+public class GetAccountByIdTests extends TestBase {
 
     private static final String ACCOUNT_ID_VALID = "87caf37b-f70f-440c-bacd-3b9399ca5d74";
     private static final String ACCOUNT_ENDPOINT = "/account/v1/account/";
@@ -220,6 +220,25 @@ public class GetAccountByIdTests extends testBase {
                 .body("message", equalTo("Forbidden"))
                 .body("_links.self.href", equalTo("/test-api" + ACCOUNT_ENDPOINT + ACCOUNT_ID_VALID))
                 .body("_embedded.errors[0].message", containsString("is not in the right status"))
+                .body("_embedded.errors[0]._links", anEmptyMap())
+                .body("_embedded.errors[0]._embedded", anEmptyMap());
+    }
+
+    @Test
+    @Tag("bugs")
+    // TC012 - Request with an expired consent returns error
+    public void testWithExpiredConsentReturnsErrorMessage() {
+        // Make the request and verify the response
+        given()
+                .header("Authorization", "Bearer " + generateTokenWithExpiredConsent())
+        .when()
+                .get("/account/v1/account/87caf37b-f70f-440c-bacd-3b9399ca5d74")
+        .then()
+                .statusCode(403)
+                .contentType(ContentType.JSON)
+                .body("message", equalTo("Forbidden"))
+                .body("_links.self.href", equalTo("/test-api/account/v1/account/87caf37b-f70f-440c-bacd-3b9399ca5d74"))
+                .body("_embedded.errors[0].message", equalTo("Consent expired"))
                 .body("_embedded.errors[0]._links", anEmptyMap())
                 .body("_embedded.errors[0]._embedded", anEmptyMap());
     }
