@@ -1,6 +1,7 @@
 package tests.accounts;
 
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import tests.TestBase;
 
@@ -102,6 +103,103 @@ public class GetAccountsTests extends TestBase {
                 .body("message", equalTo("Forbidden"))
                 .body("_links.self.href", equalTo("/test-api" + ACCOUNTS_ENDPOINT))
                 .body("_embedded.errors[0].message", equalTo("Forbidden"))
+                .body("_embedded.errors[0]._links", anEmptyMap())
+                .body("_embedded.errors[0]._embedded", anEmptyMap());
+    }
+
+    @Test
+    // TC006 - Request with a non-existent consent ID returns not found error
+    public void testNonExistentConsentReturnsNotFoundError() {
+        String notExistentConsentToken = generateTokenWithNonExistentConsent();
+
+        given()
+                .header("Authorization", "Bearer " + notExistentConsentToken)
+                .when()
+                .get(ACCOUNTS_ENDPOINT)
+                .then()
+                .statusCode(404)
+                .contentType(ContentType.JSON)
+                .body("message", equalTo("Not Found"))
+                .body("_links.self.href", equalTo("/test-api" + ACCOUNTS_ENDPOINT))
+                .body("_embedded.errors[0].message", equalTo("Consent Id urn:bank:123 not found"))
+                .body("_embedded.errors[0]._links", anEmptyMap())
+                .body("_embedded.errors[0]._embedded", anEmptyMap());
+    }
+
+
+    @Test
+    // TC007 - Request with a non-existent consent ID returns not found error
+    public void testInvalidConsentReturnsForbiddenError() {
+        String invalidConsentToken = generateTokenInvalidConsent();
+
+        given()
+                .header("Authorization", "Bearer " + invalidConsentToken)
+                .when()
+                .get(ACCOUNTS_ENDPOINT)
+                .then()
+                .statusCode(403)
+                .contentType(ContentType.JSON)
+                .body("message", equalTo("Forbidden"))
+                .body("_links.self.href", equalTo("/test-api" + ACCOUNTS_ENDPOINT))
+                .body("_embedded.errors[0].message", equalTo("Consent Id not present on the request"))
+                .body("_embedded.errors[0]._links", anEmptyMap())
+                .body("_embedded.errors[0]._embedded", anEmptyMap());
+    }
+
+    @Test
+    // TC008 - Request with a consentId in AWAITING_AUTHORISATION status returns forbidden error
+    public void testConsentAwaitingAuthorisationReturnsForbiddenError() {
+        String awaitingAuthorisationToken = generateTokenAwaitingAuthorisation();
+
+        given()
+                .header("Authorization", "Bearer " + awaitingAuthorisationToken)
+                .when()
+                .get(ACCOUNTS_ENDPOINT)
+                .then()
+                .statusCode(403)
+                .contentType(ContentType.JSON)
+                .body("message", equalTo("Forbidden"))
+                .body("_links.self.href", equalTo("/test-api" + ACCOUNTS_ENDPOINT))
+                .body("_embedded.errors[0].message", containsString("is not in the right status"))
+                .body("_embedded.errors[0]._links", anEmptyMap())
+                .body("_embedded.errors[0]._embedded", anEmptyMap());
+    }
+
+    @Test
+    // TC009 - Request with a consentId in REJECTED status returns forbidden error
+    public void testConsentRejectedReturnsForbiddenError() {
+        String rejectedToken = generateRejectedToken();
+
+        given()
+                .header("Authorization", "Bearer " + rejectedToken)
+                .when()
+                .get(ACCOUNTS_ENDPOINT)
+                .then()
+                .statusCode(403)
+                .contentType(ContentType.JSON)
+                .body("message", equalTo("Forbidden"))
+                .body("_links.self.href", equalTo("/test-api" + ACCOUNTS_ENDPOINT))
+                .body("_embedded.errors[0].message", containsString("is not in the right status"))
+                .body("_embedded.errors[0]._links", anEmptyMap())
+                .body("_embedded.errors[0]._embedded", anEmptyMap());
+    }
+
+    @Test
+    @Tag("bugs")
+    // TC010 - Request with an expired consent returns forbidden error
+    public void testExpiredConsentReturnsForbiddenError() {
+        String expiredToken = generateTokenWithExpiredConsent();
+
+        given()
+                .header("Authorization", "Bearer " + expiredToken)
+                .when()
+                .get(ACCOUNTS_ENDPOINT)
+                .then()
+                .statusCode(403)
+                .contentType(ContentType.JSON)
+                .body("message", equalTo("Forbidden"))
+                .body("_links.self.href", equalTo("/test-api" + ACCOUNTS_ENDPOINT))
+                .body("_embedded.errors[0].message", equalTo("Consent expired"))
                 .body("_embedded.errors[0]._links", anEmptyMap())
                 .body("_embedded.errors[0]._embedded", anEmptyMap());
     }
