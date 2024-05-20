@@ -55,12 +55,16 @@ public class TestBase {
     }
 
     protected static String generateTokenWithNonExistentConsent() {
+        return generateJwtToken("accounts", "urn:bank:123");
+    }
+
+    protected static String generateTokenInvalidConsent() {
         return generateJwtToken("accounts", "123");
     }
 
     protected static String generateTokenAwaitingAuthorisation() {
         String newConsentId = createAccountConsent(consentToken, LocalDateTime.now().plusDays(1));
-        return generateJwtToken("consents", newConsentId);
+        return generateJwtToken("accounts", newConsentId);
     }
 
     protected static String generateRejectedToken() {

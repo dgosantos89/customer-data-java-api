@@ -179,7 +179,7 @@ public class GetAccountByIdTests extends TestBase {
                 .contentType(ContentType.JSON)
                 .body("message", equalTo("Not Found"))
                 .body("_links.self.href", equalTo("/test-api" + ACCOUNT_ENDPOINT + ACCOUNT_ID_VALID))
-                .body("_embedded.errors[0].message", equalTo("Consent Id 123 not found"))
+                .body("_embedded.errors[0].message", equalTo("Consent Id urn:bank:123 not found"))
                 .body("_embedded.errors[0]._links", anEmptyMap())
                 .body("_embedded.errors[0]._embedded", anEmptyMap());
     }
@@ -232,13 +232,32 @@ public class GetAccountByIdTests extends TestBase {
         given()
                 .header("Authorization", "Bearer " + generateTokenWithExpiredConsent())
         .when()
-                .get("/account/v1/account/87caf37b-f70f-440c-bacd-3b9399ca5d74")
+                .get(ACCOUNT_ENDPOINT + ACCOUNT_ID_VALID)
         .then()
                 .statusCode(403)
                 .contentType(ContentType.JSON)
                 .body("message", equalTo("Forbidden"))
-                .body("_links.self.href", equalTo("/test-api/account/v1/account/87caf37b-f70f-440c-bacd-3b9399ca5d74"))
+                .body("_links.self.href", equalTo("/test-api" + ACCOUNT_ENDPOINT + ACCOUNT_ID_VALID))
                 .body("_embedded.errors[0].message", equalTo("Consent expired"))
+                .body("_embedded.errors[0]._links", anEmptyMap())
+                .body("_embedded.errors[0]._embedded", anEmptyMap());
+    }
+
+    @Test
+    @Tag("bugs")
+    // TC013 - Request without a valid consentId returns error
+    public void testWithInvalidConsentReturnsErrorMessage() {
+        // Make the request and verify the response
+        given()
+                .header("Authorization", "Bearer " + generateTokenInvalidConsent())
+                .when()
+                .get(ACCOUNT_ENDPOINT + ACCOUNT_ID_VALID)
+                .then()
+                .statusCode(403)
+                .contentType(ContentType.JSON)
+                .body("message", equalTo("Forbidden"))
+                .body("_links.self.href", equalTo("/test-api" + ACCOUNT_ENDPOINT + ACCOUNT_ID_VALID))
+                .body("_embedded.errors[0].message", equalTo("Consent Id not present on the request"))
                 .body("_embedded.errors[0]._links", anEmptyMap())
                 .body("_embedded.errors[0]._embedded", anEmptyMap());
     }
