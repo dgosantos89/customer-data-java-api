@@ -57,4 +57,4 @@ jobs:
         with:
           name: JUnit Results
           path: build/test-results/test/*.xml
-          reporter: junit
+          reporter: java-junit
