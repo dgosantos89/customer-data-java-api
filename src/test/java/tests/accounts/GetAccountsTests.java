@@ -15,7 +15,7 @@ public class GetAccountsTests extends TestBase {
 
     @Test
     // TC001 - Request accounts returns accounts list
-    public void testValidAccountIdReturnsAccountDetails() {
+    public void testRequestAccountsReturnsAccountsList() {
         given()
                 .header("Authorization", "Bearer " + getValidToken())
         .when()
@@ -36,8 +36,8 @@ public class GetAccountsTests extends TestBase {
     }
 
     @Test
-    // TC002 - No authentication token returns unauthorized error
-    public void testNoAuthTokenReturnsUnauthorizedError() {
+    // TC002 - No authentication token returns error
+    public void testNoAuthTokenReturnsError() {
         when()
                 .get(ACCOUNTS_ENDPOINT)
         .then()
@@ -51,8 +51,8 @@ public class GetAccountsTests extends TestBase {
     }
 
     @Test
-    // TC003 - Request with invalid token returns unauthorized error
-    public void testInvalidTokenReturnsUnauthorizedError() {
+    // TC003 - Request with invalid token returns error
+    public void testInvalidTokenReturnsError() {
         String invalidToken = "INVALID_TOKEN";
 
         given()
@@ -70,8 +70,8 @@ public class GetAccountsTests extends TestBase {
     }
 
     @Test
-    // TC004 - Request with an invalid token payload returns internal server error
-    public void testInvalidTokenPayloadReturnsInternalServerError() {
+    // TC004 - Request with an invalid token payload returns error
+    public void testInvalidTokenPayloadReturnsError() {
         String tokenWithoutPayload = generateTokenWithoutPayload();
 
         given()
@@ -89,8 +89,8 @@ public class GetAccountsTests extends TestBase {
     }
 
     @Test
-    // TC005 - Request with a token scope CONSENTS_MANAGE returns unauthorized error
-    public void testConsentsManageScopeReturnsUnauthorizedError() {
+    // TC005 - Request with a token scope CONSENTS_MANAGE returns error
+    public void testConsentsManageScopeReturnsError() {
         String consentsToken = generateConsentToken();
 
         given()
@@ -108,8 +108,8 @@ public class GetAccountsTests extends TestBase {
     }
 
     @Test
-    // TC006 - Request with a non-existent consent ID returns not found error
-    public void testNonExistentConsentReturnsNotFoundError() {
+    // TC006 - Request with a non-existent consent ID returns error
+    public void testNonExistentConsentReturnsError() {
         String notExistentConsentToken = generateTokenWithNonExistentConsent();
 
         given()
@@ -128,8 +128,8 @@ public class GetAccountsTests extends TestBase {
 
 
     @Test
-    // TC007 - Request with a non-existent consent ID returns not found error
-    public void testInvalidConsentReturnsForbiddenError() {
+    // TC007 - Request with a non-existent consent ID returns error
+    public void testInvalidConsentReturnsError() {
         String invalidConsentToken = generateTokenInvalidConsent();
 
         given()
@@ -147,8 +147,8 @@ public class GetAccountsTests extends TestBase {
     }
 
     @Test
-    // TC008 - Request with a consentId in AWAITING_AUTHORISATION status returns forbidden error
-    public void testConsentAwaitingAuthorisationReturnsForbiddenError() {
+    // TC008 - Request with a consentId in AWAITING_AUTHORISATION status returns error
+    public void testConsentAwaitingAuthorisationReturnsError() {
         String awaitingAuthorisationToken = generateTokenAwaitingAuthorisation();
 
         given()
@@ -166,8 +166,8 @@ public class GetAccountsTests extends TestBase {
     }
 
     @Test
-    // TC009 - Request with a consentId in REJECTED status returns forbidden error
-    public void testConsentRejectedReturnsForbiddenError() {
+    // TC009 - Request with a consentId in REJECTED status returns error
+    public void testConsentRejectedReturnsError() {
         String rejectedToken = generateRejectedToken();
 
         given()
@@ -186,8 +186,8 @@ public class GetAccountsTests extends TestBase {
 
     @Test
     @Tag("bugs")
-    // TC010 - Request with an expired consent returns forbidden error
-    public void testExpiredConsentReturnsForbiddenError() {
+    // TC010 - Request with an expired consent returns error
+    public void testExpiredConsentReturnsError() {
         String expiredToken = generateTokenWithExpiredConsent();
 
         given()

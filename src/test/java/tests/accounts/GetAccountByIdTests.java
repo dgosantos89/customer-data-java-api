@@ -15,8 +15,8 @@ public class GetAccountByIdTests extends TestBase {
     private static final String ACCOUNT_ENDPOINT = "/account/v1/account/";
 
     @Test
-    // TC001 - Valid account Id returns account data
-    public void testValidAccountIdReturnsAccountDetails() {
+    // TC001 - Valid account ID returns account data
+    public void testValidAccountIdReturnsAccountData() {
         given()
                 .header("Authorization", "Bearer " + getValidToken())
         .when()
@@ -34,8 +34,8 @@ public class GetAccountByIdTests extends TestBase {
     }
 
     @Test
-    // TC002 - Invalid account ID returns error message
-    public void testInvalidAccountIdReturnsErrorMessage() {
+    // TC002 - Invalid account ID returns error
+    public void testInvalidAccountIdReturnsError() {
         String invalidAccountId = "INVALID_ACCOUNT_ID";
 
         given()
@@ -54,8 +54,8 @@ public class GetAccountByIdTests extends TestBase {
 
     @Test
     @Tag("bugs")
-    // TC003 - A short account ID returns error message
-    public void testShortAccountIdReturnsErrorMessage() {
+    // TC003 - A short account ID returns error
+    public void testShortAccountIdReturnsError() {
         String shortAccountId = "87caf37b-f70f-440c-bacd-3b9399ca5d7";
 
         given()
@@ -73,8 +73,8 @@ public class GetAccountByIdTests extends TestBase {
     }
 
     @Test
-    // TC004 - Account ID not found returns error message
-    public void testAccountIdNotFoundReturnsErrorMessage(){
+    // TC004 - Account ID not found returns error
+    public void testAccountIdNotFoundReturnsError(){
         String nonExistentAccount = "ab535c7a-a29a-4926-884d-beff58d50db3";
 
         given()
@@ -94,7 +94,7 @@ public class GetAccountByIdTests extends TestBase {
 
     @Test
     // TC005 - Request without proper authorization returns error
-    public void testWithoutAuthorizationReturnsErrorMessage(){
+    public void testWithoutAuthorizationReturnsError(){
         when()
                 .get(ACCOUNT_ENDPOINT + ACCOUNT_ID_VALID)
         .then()
@@ -109,7 +109,7 @@ public class GetAccountByIdTests extends TestBase {
 
     @Test
     // TC006 - Request with an invalid token returns error
-    public void testWithInvalidTokenReturnsErrorMessage() {
+    public void testWithInvalidTokenReturnsError() {
         String invalidToken = "INVALID_TOKEN";
 
         given()
@@ -128,7 +128,7 @@ public class GetAccountByIdTests extends TestBase {
 
     @Test
     // TC007 - Request with token without payload returns error
-    public void testWithInvalidTokenPayloadReturnsErrorMessage() {
+    public void testWithInvalidTokenPayloadReturnsError() {
         String tokenWithoutPayload = generateTokenWithoutPayload();
 
         given()
@@ -147,7 +147,7 @@ public class GetAccountByIdTests extends TestBase {
 
     @Test
     // TC008 - Request with a consent scope token returns error
-    public void testWithConsentsScopeReturnsErrorMessage() {
+    public void testWithConsentsScopeReturnsError() {
         String consentsToken = generateConsentToken();
 
         given()
@@ -167,7 +167,7 @@ public class GetAccountByIdTests extends TestBase {
     @Test
     @Tag("bugs")
     // TC009 - Request with a non-existent consent ID scope token returns error
-    public void testWithNonExistentConsentReturnsErrorMessage() {
+    public void testWithNonExistentConsentReturnsError() {
         String notExistentConsentToken = generateTokenWithNonExistentConsent();
 
         given()
@@ -187,7 +187,7 @@ public class GetAccountByIdTests extends TestBase {
     @Test
     @Tag("bugs")
     // TC010 - Request with a consentId in AWAITING_AUTHORISATION status returns error
-    public void testWithConsentAwaitingAuthorisationReturnsErrorMessage() {
+    public void testWithConsentAwaitingAuthorisationReturnsError() {
         String awaitingAuthorisationToken = generateTokenAwaitingAuthorisation();
 
         given()
@@ -207,7 +207,7 @@ public class GetAccountByIdTests extends TestBase {
     @Test
     @Tag("bugs")
     // TC011 - Request with a consentId in REJECTED status returns error
-    public void testWithConsentRejectedReturnsErrorMessage() {
+    public void testWithConsentRejectedReturnsError() {
         String rejectedToken = generateRejectedToken();
 
         given()
@@ -226,8 +226,8 @@ public class GetAccountByIdTests extends TestBase {
 
     @Test
     @Tag("bugs")
-    // TC012 - Request with an expired consent returns error
-    public void testWithExpiredConsentReturnsErrorMessage() {
+    // TC012 - Request with an expired consentId returns error
+    public void testWithExpiredConsentReturnsError() {
         // Make the request and verify the response
         given()
                 .header("Authorization", "Bearer " + generateTokenWithExpiredConsent())
@@ -246,7 +246,7 @@ public class GetAccountByIdTests extends TestBase {
     @Test
     @Tag("bugs")
     // TC013 - Request without a valid consentId returns error
-    public void testWithInvalidConsentReturnsErrorMessage() {
+    public void testWithInvalidConsentReturnsError() {
         // Make the request and verify the response
         given()
                 .header("Authorization", "Bearer " + generateTokenInvalidConsent())
