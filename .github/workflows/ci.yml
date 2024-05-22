@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -34,12 +34,12 @@ jobs:
       - name: Wait for application to start
         run: |
           echo "Waiting for application to start..."
-          for i in {1..10}; do
+          for i in {1..5}; do
             if curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/account/v1/accounts | grep -q '401'; then
               echo "Application is up and running"
               break
             fi
-            if [ $i -eq 10 ]; then
+            if [ $i -eq 5 ]; then
               echo "Application failed to start in time" >&2
               exit 1
             fi
@@ -52,9 +52,18 @@ jobs:
         run: ./gradlew test
 
       - name: Publish Test Report
+        id: report
         if: always()
         uses: dorny/test-reporter@v1.7.0
         with:
           name: JUnit Results
           path: build/test-results/test/*.xml
           reporter: java-junit
+          fail-on-error: false
+
+      - name: Report on summary
+        if: always()
+        run: |
+          report_url_link=${{ steps.report.outputs.url_html }}
+          echo '### Tests Report' >> $GITHUB_STEP_SUMMARY
+          echo $report_url_link >> $GITHUB_STEP_SUMMARY
