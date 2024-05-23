@@ -1,5 +1,18 @@
 # Open Customer Data Api
 
+
+---
+## Technical Task
+
+- [Test Cases](./docs/test-cases.md)
+- [API Documentation Evaluation](./docs/documentation-evaluation.md)
+- [Bug Report](./docs/bug-report.md)
+- [Security Test Plan](./docs/security-test-plan.md)
+
+
+---
+
+
 ### About it
 
 This is a open source api to simulate a data sharing using a consent base concept. Basicly to share any client data you need
