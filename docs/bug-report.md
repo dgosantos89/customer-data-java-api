@@ -7,6 +7,7 @@
 
 ## GET /accounts/v1/accounts/{accountId}
 
+---
 ### TC003: A short account ID returns error
 **Description:** The endpoint does not validate the format of the Account ID, allowing short IDs to pass validation.
 
@@ -22,6 +23,7 @@
   
 **Comments:** The endpoint should validate the Account ID format to prevent invalid requests.
 
+---
 ### TC009: Request with a not existent consent ID scope token
 **Description:** The endpoint does not validate if the Consent ID exists before processing the request.
 
@@ -37,6 +39,7 @@
 
 **Comments:** The endpoint should validate the existence of the Consent ID to prevent unauthorized access.
 
+---
 ### TC010: Request with a consentId in AWAITING_AUTHORISATION status
 **Description:** The endpoint does not validate the status of the Consent ID.
 
@@ -52,6 +55,7 @@
 
 **Comments:** The endpoint should validate the status of the Consent ID to prevent unauthorized access.
 
+---
 ### TC011: Request with a consentId in REJECTED status
 **Description:** The endpoint does not validate the status of the Consent ID.
 
@@ -67,6 +71,7 @@
 
 **Comments:** The endpoint should validate the status of the Consent ID to prevent unauthorized access.
 
+---
 ### TC012: Request with an expired consent returns error
 **Description:** The endpoint does not validate the expiration date of the Consent ID.
 
@@ -82,6 +87,7 @@
 
 **Comments:** The endpoint should validate the expiration date of the Consent ID to prevent access after expiration.
 
+---
 ### TC013: Request without a valid consentId returns error
 **Description:** The endpoint does not validate if the Consent Id is present in the request.
 
@@ -97,6 +103,7 @@
    
 **Comments:** The endpoint should validate if the Consent Id is present in the request to prevent unauthorized access.
 
+---
 ## GET /accounts/v1/accounts
 
 ### TC010: Request with an expired consent returns error
@@ -114,6 +121,7 @@
    
 **Comments:** The endpoint should validate the expiration date of the Consent ID to prevent access after expiration.
 
+---
 ## Priority Explanation
 
 In assigning priorities to the identified bugs, the severity of their impact on system functionality, data security, and compliance requirements was thoroughly evaluated.
