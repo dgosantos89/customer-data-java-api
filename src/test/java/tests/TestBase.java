@@ -14,9 +14,6 @@ import static io.restassured.RestAssured.given;
 
 public class TestBase {
 
-    protected static String consentId;
-    protected static String consentToken;
-
     @BeforeAll
     public static void setup() {
         // Set base URI
@@ -24,20 +21,13 @@ public class TestBase {
 
         // Set the default timezone to GMT
         TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-
-        // Generate JWT token with "consents" scope
-        consentToken = generateConsentToken();
-
-        // Create consent
-        consentId = createAccountConsent(consentToken, LocalDateTime.now().plusDays(1));
-
-        // Authorize consent
-        updateConsentStatus(consentId, consentToken, "AUTHORISED");
     }
 
     // Utility methods for generating tokens
     protected static String generateJwtToken(String scope, String consentId) {
         String header = "{\"alg\": \"none\", \"typ\": \"JWT\"}";
+
+        // Allows generate token without consentId
         String payload = consentId != null
                 ? "{\"scope\": \"" + scope + " consent:" + consentId + "\", \"client_id\": \"client1\"}"
                 : "{\"scope\": \"" + scope + "\", \"client_id\": \"client1\"}";
@@ -63,25 +53,27 @@ public class TestBase {
     }
 
     protected static String generateTokenAwaitingAuthorisation() {
-        String newConsentId = createAccountConsent(consentToken, LocalDateTime.now().plusDays(1));
-        return generateJwtToken("accounts", newConsentId);
+        String localConsentToken = generateConsentToken();
+        String localConsentId = createAccountConsent(localConsentToken, LocalDateTime.now().plusDays(1));
+        return generateJwtToken("accounts", localConsentId);
     }
 
     protected static String generateRejectedToken() {
-        String newConsentId = createAccountConsent(consentToken, LocalDateTime.now().plusDays(1));
-        updateConsentStatus(newConsentId, consentToken, "REJECTED");
-        return generateJwtToken("accounts", newConsentId);
+        String localConsentToken = generateConsentToken();
+        String localConsentId = createAccountConsent(localConsentToken, LocalDateTime.now().plusDays(1));
+        updateConsentStatus(localConsentId, localConsentToken, "REJECTED");
+        return generateJwtToken("accounts", localConsentId);
     }
 
-    private static String createAccountConsent(String token, LocalDateTime expirationDateTime) {
+    protected static String createAccountConsent(String token, LocalDateTime expirationDateTime) {
         String formattedExpirationTime = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").format(expirationDateTime);
         Response response = given()
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + token)
                 .body("{\"data\": {\"permissions\": \"ACCOUNTS_READ\", \"expirationDateTime\": \"" + formattedExpirationTime + "\"}}")
-                .when()
+        .when()
                 .post("/consents/v1/consents")
-                .then()
+        .then()
                 .statusCode(201)
                 .contentType(ContentType.JSON)
                 .extract()
@@ -106,15 +98,19 @@ public class TestBase {
     }
 
     protected static String getValidToken() {
-        return generateJwtToken("accounts", consentId);
+        String localConsentToken = generateConsentToken();
+        String localConsentId = createAccountConsent(localConsentToken, LocalDateTime.now().plusDays(1));
+        updateConsentStatus(localConsentId, localConsentToken, "AUTHORISED");
+        return generateJwtToken("accounts", localConsentId);
     }
 
     protected String generateTokenWithExpiredConsent() {
         // Create a consent that expires soon
-        String newConsentId = createAccountConsent(consentToken, LocalDateTime.now().plusSeconds(30));
+        String localConsentToken = generateConsentToken();
+        String localConsentId = createAccountConsent(localConsentToken, LocalDateTime.now().plusSeconds(30));
 
         // Approve the consent
-        updateConsentStatus(newConsentId, consentToken, "AUTHORISED");
+        updateConsentStatus(localConsentId, localConsentToken, "AUTHORISED");
 
         // Wait to expire
         try {
@@ -125,6 +121,6 @@ public class TestBase {
         }
 
         // Return the token for the expired consent
-        return generateJwtToken("accounts", newConsentId);
+        return generateJwtToken("accounts", localConsentId);
     }
 }

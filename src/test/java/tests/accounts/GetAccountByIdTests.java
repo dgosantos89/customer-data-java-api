@@ -250,9 +250,9 @@ public class GetAccountByIdTests extends TestBase {
         // Make the request and verify the response
         given()
                 .header("Authorization", "Bearer " + generateTokenInvalidConsent())
-                .when()
+        .when()
                 .get(ACCOUNT_ENDPOINT + ACCOUNT_ID_VALID)
-                .then()
+        .then()
                 .statusCode(403)
                 .contentType(ContentType.JSON)
                 .body("message", equalTo("Forbidden"))
